@@ -20,10 +20,11 @@ A modern Angular application for managing user-specific tasks with a clean, comp
   - Data persists across page refreshes
 
 - **Modern Angular Features**
-  - Standalone components
+  - NgModule-based architecture
   - Control flow syntax (`@if`, `@for`)
   - TypeScript strict mode
   - Reactive forms
+  - Feature modules for better organization
 
 ## Technologies & Libraries
 
@@ -57,6 +58,7 @@ src/
 │   ├── app.component.ts          # Root component
 │   ├── app.component.html        # Root template
 │   ├── app.component.css         # Root styles
+│   ├── app.module.ts             # Root NgModule
 │   ├── dummy-users.ts            # User data source
 │   │
 │   ├── header/                   # Header component
@@ -64,13 +66,14 @@ src/
 │   │   ├── header.component.html
 │   │   └── header.component.css
 │   │
-│   ├── user/                     # User feature module
+│   ├── user/                     # User feature
 │   │   ├── user.component.ts     # User card component
 │   │   ├── user.component.html
 │   │   ├── user.component.css
 │   │   └── user.model.ts         # User type definition
 │   │
 │   ├── tasks/                    # Tasks feature module
+│   │   ├── tasks.module.ts       # Tasks NgModule
 │   │   ├── tasks.component.ts    # Tasks container component
 │   │   ├── tasks.component.html
 │   │   ├── tasks.component.css
@@ -88,7 +91,8 @@ src/
 │   │       ├── new-task.component.css
 │   │       └── new-task.model.ts
 │   │
-│   └── shared/                   # Shared components
+│   └── shared/                   # Shared module
+│       ├── shared.module.ts      # Shared NgModule
 │       └── card/                 # Reusable card component
 │           ├── card.component.ts
 │           ├── card.component.html
@@ -98,18 +102,30 @@ src/
 │   └── users/                    # User avatar images
 │
 ├── index.html                    # Application entry point
-├── main.ts                       # Bootstrap file
+├── main.ts                       # Bootstrap file (uses AppModule)
 └── styles.css                    # Global styles
 ```
 
 ## Architecture
 
-### Component Architecture
-- **Standalone Components**: All components are standalone (no NgModules)
-- **Component Communication**: 
-  - Parent-to-child: `@Input()` properties
-  - Child-to-parent: `@Output()` event emitters
-- **Service Injection**: Dependency injection using `inject()` function and constructor injection
+### Module Architecture
+- **AppModule**: Root module that bootstraps the application
+  - Declares: `AppComponent`, `HeaderComponent`, `UserComponent`
+  - Imports: `BrowserModule`, `SharedModule`, `TasksModule`
+  
+- **TasksModule**: Feature module for task management
+  - Declares: `TasksComponent`, `TaskComponent`, `NewTaskComponent`
+  - Imports: `CommonModule`, `FormsModule`, `SharedModule`
+  - Exports: `TasksComponent` (for use in other modules)
+  
+- **SharedModule**: Shared utilities module
+  - Declares and exports: `CardComponent`
+  - Provides reusable components across the application
+
+### Component Communication
+- **Parent-to-child**: `@Input()` properties
+- **Child-to-parent**: `@Output()` event emitters
+- **Service Injection**: Dependency injection using constructor injection
 
 ### Data Flow
 1. **AppComponent** manages user selection and passes data to child components
@@ -123,6 +139,7 @@ src/
   - Manages task data
   - Provides methods: `getUserTasks()`, `addTask()`, `removeTask()`
   - Handles localStorage persistence
+  - Provided at root level (`providedIn: 'root'`)
 
 ## Version Information
 
@@ -143,7 +160,7 @@ Before running this application, ensure you have the following installed:
 
 1. **Clone the repository** (if applicable) or navigate to the project directory:
    ```bash
-   cd starting-project
+   cd Angular Task Management App
    ```
 
 2. **Install dependencies**:
@@ -230,9 +247,13 @@ ng test
 ## Development Notes
 
 - The application uses **Angular's new control flow syntax** (`@if`, `@for`) instead of structural directives
-- All components are **standalone** - no NgModules required
+- **NgModule-based architecture** with feature modules for better code organization
+  - `AppModule` - Root module
+  - `TasksModule` - Task management feature module
+  - `SharedModule` - Shared components module
 - **Strict TypeScript** mode is enabled for better type safety
 - The app uses **localStorage** for data persistence (no backend required)
+- Application is bootstrapped using `platformBrowserDynamic().bootstrapModule(AppModule)`
 
 ## Browser Support
 
